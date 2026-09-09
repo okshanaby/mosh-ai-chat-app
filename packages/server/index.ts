@@ -10,8 +10,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/v1/chat", (req, res) => {
-    res.json({ message: "Hello World" });
-  });
+  res.json({ message: "Hello World!" });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);

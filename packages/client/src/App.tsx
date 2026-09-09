@@ -9,7 +9,7 @@ function App() {
       .then(data => setMessage(data.message));
   }, []);
 
-  return <div>{message}</div>;
+  return <div>{message} - 006</div>;
 }
 
 export default App
