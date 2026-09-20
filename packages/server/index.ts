@@ -28,35 +28,43 @@ const conversation = new Map<string, string>();
 
 const conversationSchema = z.object({
   conversationId: z.uuid(),
-  prompt: z.string().trim().min(1, "Prompt cant be empty").max(1000, "Prompt cant exeed 1000 characters"),
+  prompt: z
+    .string()
+    .trim()
+    .min(1, 'Prompt cant be empty')
+    .max(1000, 'Prompt cant exeed 1000 characters'),
 });
 
 app.post('/api/v1/chat', async (req, res) => {
-  console.log("================= POST: /api/v1/chat - HIT ===============================");
+  console.log('================= POST: /api/v1/chat - HIT ===============================');
 
   const { success, data, error } = conversationSchema.safeParse(req.body);
-
-  console.log("error", error);
 
   if (!success) {
     return res.status(400).json({ error: z.flattenError(error).fieldErrors });
   }
 
-  const { prompt, conversationId } = data;
+  try {
+    const { prompt, conversationId } = data;
 
-  const response = await client.responses.create({
-    model: 'gpt-4o-mini',
-    input: prompt,
-    temperature: 0.2,
-    max_output_tokens: 100,
-    previous_response_id: conversation.get(conversationId),
-  });
+    const response = await client.responses.create({
+      model: 'gpt-4o-mini1',
+      input: prompt,
+      temperature: 0.2,
+      max_output_tokens: 100,
+      previous_response_id: conversation.get(conversationId),
+    });
 
-  conversation.set(conversationId, response.id)
+    conversation.set(conversationId, response.id);
 
-  console.log("================= POST: /api/v1/chat - RESPONDED ===============================");
+    console.log('================= POST: /api/v1/chat - RESPONDED ===============================');
 
-  res.json({ response: response.output_text });
+    res.json({ response: response.output_text });
+  } catch (error) {
+    console.error('================= POST: /api/v1/chat - ERROR ==========================');
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to generate prompt response, try again' });
+  }
 });
 
 app.listen(PORT, () => {
