@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
+import { z } from 'zod';
 
 dotenv.config();
 
@@ -25,10 +26,23 @@ app.get('/api/v1/chat', (req, res) => {
 // conv2 -> 4
 const conversation = new Map<string, string>();
 
+const conversationSchema = z.object({
+  conversationId: z.uuid(),
+  prompt: z.string().trim().min(1, "Prompt cant be empty").max(1000, "Prompt cant exeed 1000 characters"),
+});
+
 app.post('/api/v1/chat', async (req, res) => {
   console.log("================= POST: /api/v1/chat - HIT ===============================");
 
-  const { prompt, conversationId } = req.body;
+  const { success, data, error } = conversationSchema.safeParse(req.body);
+
+  console.log("error", error);
+
+  if (!success) {
+    return res.status(400).json({ error: z.flattenError(error).fieldErrors });
+  }
+
+  const { prompt, conversationId } = data;
 
   const response = await client.responses.create({
     model: 'gpt-4o-mini',
