@@ -1,28 +1,17 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { OpenAI } from 'openai';
 import { z } from 'zod';
-import { conversationRepository } from './src/repositories/conversation.repository';
+import { chatService } from './src/services/chat.service';
 
 dotenv.config();
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World: ' + process.env.OPENAI_API_KEY);
-});
-
 app.get('/api/v1/chat', (req, res) => {
   res.json({ message: 'Hello World!' });
 });
-
-
 
 const conversationSchema = z.object({
   conversationId: z.uuid(),
@@ -45,19 +34,11 @@ app.post('/api/v1/chat', async (req, res) => {
   try {
     const { prompt, conversationId } = data;
 
-    const response = await client.responses.create({
-      model: 'gpt-4o-mini',
-      input: prompt,
-      temperature: 0.2,
-      max_output_tokens: 100,
-      previous_response_id: conversationRepository.getLastResponseId(conversationId),
-    });
-
-    conversationRepository.setLastResponseId(conversationId, response.id);
+    const response = await chatService.sendMessage(conversationId, prompt);
 
     console.log('================= POST: /api/v1/chat - RESPONDED ===============================');
 
-    res.json({ response: response.output_text });
+    res.json({ response: response.message });
   } catch (error) {
     console.error('================= POST: /api/v1/chat - ERROR ==========================');
     console.error(error);
