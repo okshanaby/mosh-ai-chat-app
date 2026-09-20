@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
 import { z } from 'zod';
+import { conversationRepository } from './src/repositories/conversation.repository';
 
 dotenv.config();
 
@@ -21,10 +22,7 @@ app.get('/api/v1/chat', (req, res) => {
   res.json({ message: 'Hello World!' });
 });
 
-// ConversationId -> lastResponseId
-// conv1 -> 100
-// conv2 -> 4
-const conversation = new Map<string, string>();
+
 
 const conversationSchema = z.object({
   conversationId: z.uuid(),
@@ -48,14 +46,14 @@ app.post('/api/v1/chat', async (req, res) => {
     const { prompt, conversationId } = data;
 
     const response = await client.responses.create({
-      model: 'gpt-4o-mini1',
+      model: 'gpt-4o-mini',
       input: prompt,
       temperature: 0.2,
       max_output_tokens: 100,
-      previous_response_id: conversation.get(conversationId),
+      previous_response_id: conversationRepository.getLastResponseId(conversationId),
     });
 
-    conversation.set(conversationId, response.id);
+    conversationRepository.setLastResponseId(conversationId, response.id);
 
     console.log('================= POST: /api/v1/chat - RESPONDED ===============================');
 
