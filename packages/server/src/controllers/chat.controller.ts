@@ -32,7 +32,7 @@ export const chatController = {
         '================= POST: /api/v1/chat - RESPONDED ==============================='
       );
 
-      res.json({ response: response.message });
+      res.json({ message: response.message });
     } catch (error) {
       console.error('================= POST: /api/v1/chat - ERROR ==========================');
       console.error(error);
