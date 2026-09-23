@@ -1,8 +1,10 @@
-import { Button } from './ui/button';
-import { FaArrowUp } from 'react-icons/fa';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+
+import { FaArrowUp } from 'react-icons/fa';
+import { Button } from './ui/button';
 
 type ChatForm = {
   prompt: string;
@@ -18,7 +20,8 @@ type Message = {
 };
 
 function ChatBot() {
-  const conversationId = useRef(crypto.randomUUID());
+  //   const conversationId = useRef(crypto.randomUUID());
+  const [conversationId] = useState(crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([]);
 
   const { register, reset, handleSubmit, formState } = useForm<ChatForm>();
@@ -30,7 +33,7 @@ function ChatBot() {
 
     const { data } = await axios.post<ChatResponse>('/api/v1/chat', {
       prompt,
-      conversationId: conversationId.current,
+      conversationId,
     });
 
     setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
@@ -47,14 +50,16 @@ function ChatBot() {
     <div className="space-y-10">
       <div className="flex flex-col gap-4">
         {messages.map((message, index) => (
-          <p
+          <div
             key={index}
             className={`py-1.5 px-3 rounded-xl  ${
-              message.role === 'user' ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-black self-start'
+              message.role === 'user'
+                ? 'bg-blue-500 text-white self-end'
+                : 'bg-gray-200 text-black self-start'
             }`}
           >
-            {message.content}
-          </p>
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
         ))}
       </div>
       <form
