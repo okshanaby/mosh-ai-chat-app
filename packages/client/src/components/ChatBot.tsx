@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -24,6 +24,11 @@ function ChatBot() {
   const [conversationId] = useState(crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  useEffect(() => {
+    formRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const { register, reset, handleSubmit, formState } = useForm<ChatForm>();
 
@@ -65,7 +70,7 @@ function ChatBot() {
           </div>
         ))}
         {isBotTyping && (
-          <div className='flex gap-1 self-start p-3 bg-gray-200 rounded-xl'>
+          <div className="flex gap-1 self-start p-3 bg-gray-200 rounded-xl">
             <div className="w-2 h-2 rounded-full bg-black animate-pulse" />
             <div className="w-2 h-2 rounded-full bg-black animate-pulse [animation-delay:.2s]" />
             <div className="w-2 h-2 rounded-full bg-black animate-pulse [animation-delay:.4s]" />
@@ -75,6 +80,7 @@ function ChatBot() {
       <form
         onSubmit={handleSubmit(submitHandler)}
         className="relative border-2 focus-within:border-gray-600 p-3 rounded-2xl h-34"
+        ref={formRef}
       >
         <textarea
           {...register('prompt', {
