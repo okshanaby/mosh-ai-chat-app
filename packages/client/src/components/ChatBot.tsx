@@ -24,10 +24,10 @@ function ChatBot() {
   const [conversationId] = useState(crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    formRef.current?.scrollIntoView({ behavior: 'smooth' });
+    lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const { register, reset, handleSubmit, formState } = useForm<ChatForm>();
@@ -36,7 +36,7 @@ function ChatBot() {
     setIsBotTyping(true);
     setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
 
-    reset();
+    reset({ prompt: '' });
 
     const { data } = await axios.post<ChatResponse>('/api/v1/chat', {
       prompt,
@@ -63,8 +63,8 @@ function ChatBot() {
   };
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col gap-4">
+    <div className="space-y-10 h-full flex flex-col">
+      <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -73,6 +73,7 @@ function ChatBot() {
                 ? 'bg-blue-500 text-white self-end'
                 : 'bg-gray-200 text-black self-start'
             }`}
+            ref={index === messages.length - 1 ? lastMessageRef : null}
             onCopy={copyMessageHandler}
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
@@ -89,7 +90,6 @@ function ChatBot() {
       <form
         onSubmit={handleSubmit(submitHandler)}
         className="relative border-2 focus-within:border-gray-600 p-3 rounded-2xl h-34"
-        ref={formRef}
       >
         <textarea
           {...register('prompt', {
@@ -100,6 +100,7 @@ function ChatBot() {
           placeholder="Ask anything..."
           maxLength={1000}
           onKeyDown={enterKeyHandler}
+          autoFocus
         />
         <Button
           disabled={!formState.isValid}
