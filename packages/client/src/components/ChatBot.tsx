@@ -54,6 +54,14 @@ function ChatBot() {
     }
   };
 
+  const copyMessageHandler = (e: React.ClipboardEvent) => {
+    const selection = window.getSelection()?.toString().trim();
+    if (selection) {
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', selection);
+    }
+  };
+
   return (
     <div className="space-y-10">
       <div className="flex flex-col gap-4">
@@ -65,6 +73,7 @@ function ChatBot() {
                 ? 'bg-blue-500 text-white self-end'
                 : 'bg-gray-200 text-black self-start'
             }`}
+            onCopy={copyMessageHandler}
           >
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </div>
