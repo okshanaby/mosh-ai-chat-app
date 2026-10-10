@@ -30,7 +30,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
       {messages.map((message, index) => (
         <div
           key={index}
-          className={`py-1.5 px-3 rounded-xl max-w-md  ${
+          className={`py-1.5 px-3 rounded-xl max-w-md prose  ${
             message.role === 'user'
               ? 'bg-blue-500 text-white self-end'
               : 'bg-gray-200 text-black self-start'
