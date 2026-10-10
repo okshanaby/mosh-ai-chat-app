@@ -7,6 +7,15 @@ import ChatMessages from './chat/chat-messages';
 import type { ChatForm } from './chat/chat-input';
 import ChatInput from './chat/chat-input';
 
+import notificationSound from '@/assets/sounds/notification.mp3';
+import popSound from '@/assets/sounds/pop.mp3';
+
+const popAudio = new Audio(popSound);
+popAudio.volume = 0.2;
+
+const notificationAudio = new Audio(notificationSound);
+notificationAudio.volume = 0.2;
+
 type ChatResponse = {
   message: string;
 };
@@ -19,12 +28,13 @@ function ChatBot() {
   const [responseError, setResponseError] = useState<string | null>(null);
 
   const submitHandler = async ({ prompt }: ChatForm) => {
-    console.log(prompt)
-    
+    console.log(prompt);
+
     try {
       setIsBotTyping(true);
       setResponseError(null);
       setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
+      popAudio.play();
 
       const { data } = await axios.post<ChatResponse>('/api/v1/chat', {
         prompt,
@@ -32,6 +42,7 @@ function ChatBot() {
       });
 
       setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+      notificationAudio.play();
     } catch (error) {
       console.error(error);
       setResponseError('Something went wrong! Please try again');
@@ -47,7 +58,7 @@ function ChatBot() {
         {isBotTyping && <TypingIndicator />}
         {responseError && <p className="text-red-500">{responseError}</p>}
       </div>
-        <ChatInput submitHandler={submitHandler} />
+      <ChatInput submitHandler={submitHandler} />
     </div>
   );
 }
