@@ -1,0 +1,30 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "bunVersion": "1.4.x",
+  "services": {
+    "client": {
+      "root": "packages/client",
+      "framework": "vite",
+      "installCommand": "bun install --filter client"
+    },
+    "server": {
+      "root": "packages/server",
+      "framework": "express",
+      "installCommand": "bun install --filter server"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "server"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "client"
+      }
+    }
+  ]
+}

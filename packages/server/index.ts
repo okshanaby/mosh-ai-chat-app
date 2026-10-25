@@ -9,7 +9,10 @@ const app = express();
 app.use(express.json());
 app.use('/api/v1/chat', chatRouter);
 
+export default app;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port http://localhost:${PORT}`);
+  });
+}
